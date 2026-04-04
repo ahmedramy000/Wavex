@@ -1,0 +1,71 @@
+{
+  "appId":   "com.wavex.app",
+  "appName": "Wavex",
+  "webDir":  ".",
+  "bundledWebRuntime": false,
+
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false,
+    "allowNavigation": []
+  },
+
+  "android": {
+    "buildOptions": {
+      "keystorePath":    "wavex-release.keystore",
+      "keystoreAlias":   "wavex",
+      "releaseType":     "APK"
+    },
+    "allowMixedContent": false,
+    "captureInput":      true,
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor":   "#0d0d1f",
+    "loggingBehavior":   "none",
+    "initialFocus":      true
+  },
+
+  "ios": {
+    "contentInset":        "always",
+    "backgroundColor":     "#0d0d1f",
+    "allowsLinkPreview":   false,
+    "scrollEnabled":       true,
+    "limitsNavigationsToAppBoundDomains": true
+  },
+
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration":    2500,
+      "launchAutoHide":        true,
+      "backgroundColor":       "#0d0d1f",
+      "androidSplashResourceName": "splash",
+      "androidScaleType":      "CENTER_CROP",
+      "showSpinner":           false,
+      "splashFullScreen":      true,
+      "splashImmersive":       true
+    },
+    "StatusBar": {
+      "style":           "DARK",
+      "backgroundColor": "#0d0d1f",
+      "overlaysWebView": false
+    },
+    "Keyboard": {
+      "resize":         "body",
+      "style":          "DARK",
+      "resizeOnFullScreen": true
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "LocalNotifications": {
+      "smallIcon":    "ic_stat_icon_config_sample",
+      "iconColor":    "#6ee7f7",
+      "sound":        null
+    },
+    "Camera": {
+      "permissions": ["camera", "photos"]
+    },
+    "Filesystem": {
+      "permissions": ["publicStorage"]
+    }
+  }
+}
