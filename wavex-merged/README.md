@@ -106,4 +106,4 @@ pm2 start backend/server.js --name wavex
 
 ---
 
-Made with 💙 | Wavex 2025
+Made with Ahmed Rami | Wavex 2026
