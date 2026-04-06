@@ -66,7 +66,7 @@ wavex/
 ```bash
 npm install
 npm start
-# ← http://localhost:3000
+# ← https://wavex-merged.vercel.app/
 ```
 
 ---
@@ -99,8 +99,8 @@ pm2 start backend/server.js --name wavex
 
 | الحساب | اليوزر | الباسوورد |
 |--------|--------|-----------|
-| Wavex Official | `wavex_official` | `Wavex@Official2025` |
-| Wavex Team | `wavex_team` | `WavexTeam@2025` |
+| Wavex Official | `ial` | `025` |
+| Wavex Team | `am` | `025` |
 
 > ⚠️ غير الباسوورد في `js/app.js` قبل النشر!
 
