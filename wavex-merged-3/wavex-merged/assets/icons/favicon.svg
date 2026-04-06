@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Wavex">
+  <defs>
+    <linearGradient id="fv-g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#6ee7f7"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="fv-g2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#6ee7f7"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+    <filter id="fv-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="fv-clip"><rect x="1" y="1" width="30" height="30" rx="8"/></clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" fill="rgba(7,7,26,0.95)" stroke="url(#fv-g1)" stroke-width="1"/>
+  <rect x="1"   y="1"   width="30" height="30" rx="8" fill="rgba(110,231,247,0.08)"/>
+
+  <!-- Waves at favicon scale -->
+  <g clip-path="url(#fv-clip)">
+    <path d="M2 20 Q7 14 12 18 Q17 22 22 16 Q27 10 30 14"
+          fill="none" stroke="url(#fv-g1)" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+    <path d="M2 16 Q7 9 12 14 Q17 19 22 12 Q27 5 30 10"
+          fill="none" stroke="url(#fv-g2)" stroke-width="2" stroke-linecap="round" filter="url(#fv-glow)"/>
+  </g>
+
+  <!-- Shine -->
+  <ellipse cx="9" cy="7" rx="6" ry="2.5" fill="rgba(255,255,255,0.07)" transform="rotate(-15 9 7)"/>
+</svg>
