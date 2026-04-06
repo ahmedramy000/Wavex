@@ -1,4 +1,4 @@
-# 🌊 Wavex — Liquid Glass Social Platform v2.0
+u# 🌊 Wavex — Liquid Glass Social Platform v2.0
 
 > منصة اجتماعية عصرية · Modern Social Media Platform
 
@@ -66,7 +66,7 @@ wavex/
 ```bash
 npm install
 npm start
-# ← http://localhost:3000
+# ← https://wavex-merged.vercel.app/
 ```
 
 ---
@@ -99,11 +99,11 @@ pm2 start backend/server.js --name wavex
 
 | الحساب | اليوزر | الباسوورد |
 |--------|--------|-----------|
-| Wavex Official | `wavex_official` | `Wavex@Official2025` |
-| Wavex Team | `wavex_team` | `WavexTeam@2025` |
+| Wavex Official | `` | `Wave5` |
+| Wavex Team | `wm` | `Wm@2025` |
 
 > ⚠️ غير الباسوورد في `js/app.js` قبل النشر!
 
 ---
 
-Made with 💙 | Wavex 2025
+Made with Ahmed Rami | Wavex 2026
