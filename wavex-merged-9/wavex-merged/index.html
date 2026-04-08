@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-lang="ar">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="theme-color" content="#6ee7f7" id="meta-theme-color"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#07071a" media="(prefers-color-scheme: dark)"/>
+  <meta name="apple-mobile-web-app-title" content="Wavex"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="assets/icons/favicon.svg"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <title>Wavex — شبكتك الاجتماعية</title>
+  <meta name="description" content="Wavex - Connect differently | تواصل بشكل مختلف"/>
+  <meta name="theme-color" content="#0a0a1a"/>
+  <meta property="og:title" content="Wavex"/>
+  <meta property="og:description" content="Connect differently"/>
+  <meta property="og:image" content="assets/images/logo.svg"/>
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles/style.css"/>
+  <link rel="stylesheet" href="styles/responsive.css"/>
+  <!-- React 18 via CDN — بدون build step -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+<div class="bg-scene" id="bg-scene">
+  <div class="orb orb-1" id="orb1"></div>
+  <div class="orb orb-2" id="orb2"></div>
+  <div class="orb orb-3" id="orb3"></div>
+  <div class="orb orb-4" id="orb4"></div>
+  <div class="orb orb-5" id="orb5"></div>
+  <canvas id="particles-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:1;opacity:0.6"></canvas>
+  <div class="noise-overlay"></div>
+</div>
+
+<!-- ════════════════ AUTH ════════════════ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card glass-card">
+
+    <!-- ── Logo ── -->
+    <div class="logo-wrap">
+      <img src="assets/images/logo.svg" alt="Wavex" class="logo-svg-full"/>
+      <p style="color:rgba(255,255,255,0.45);font-size:.8rem;margin-top:5px;text-align:center">تواصل بشكل مختلف</p>
+    </div>
+
+    <!-- ══ LOGIN ══ -->
+    <div id="login-form" class="form-section active">
+      <h2 class="form-title">أهلاً بيك تاني 👋</h2>
+      <div class="input-group">
+        <input type="text" id="login-username" class="glass-input" placeholder="اسم المستخدم"/>
+        <span class="input-icon">👤</span>
+      </div>
+      <div class="input-group">
+        <input type="password" id="login-password" class="glass-input" placeholder="الباسورد" onkeydown="if(event.key==='Enter')login()"/>
+        <span class="input-icon">🔐</span>
+      </div>
+      <div class="remember-row">
+        <label class="checkbox-label"><input type="checkbox" id="remember-me"/><span>فاكرني</span></label>
+        <span class="link-muted" onclick="showToast('اتواصل مع الدعم','📧')">نسيت الباسورد؟</span>
+      </div>
+      <button class="btn-primary" onclick="login()">دخول</button>
+      <div class="divider"><span>أو</span></div>
+      <button class="btn-social" onclick="demoLogin()">⚡ دخول تجريبي</button>
+      <p class="switch-text">مش عندك حساب؟ <span class="link" onclick="startRegister()">اعمل حساب دلوقتي</span></p>
+    </div>
+
+    <!-- ══ REGISTER — خطوة بخطوة ══ -->
+    <div id="register-form" class="form-section">
+
+      <!-- Step dots -->
+      <div class="reg-steps" id="reg-steps">
+        <div class="reg-step active" id="rstep-1"></div>
+        <div class="reg-step" id="rstep-2"></div>
+        <div class="reg-step" id="rstep-3"></div>
+        <div class="reg-step" id="rstep-4"></div>
+      </div>
+
+      <!-- STEP 1: الاسم واسم المستخدم -->
+      <div class="reg-step-content active" id="reg-step-1">
+        <h2 class="form-title">🌊 ابدأ معانا</h2>
+        <p class="form-sub">اسمك إيه؟</p>
+        <div class="input-group">
+          <input type="text" id="reg-name" class="glass-input" placeholder="الاسم كامل"/>
+          <span class="input-icon">✨</span>
+        </div>
+        <div class="input-group">
+          <input type="text" id="reg-username" class="glass-input" placeholder="اسم المستخدم (بالإنجليزي)" oninput="validateUsername(this)"/>
+          <span class="input-icon">@</span>
+          <span class="input-hint" id="username-hint"></span>
+        </div>
+        <button class="btn-primary" onclick="regNext(1)">التالي ›</button>
+        <p class="switch-text">عندك حساب؟ <span class="link" onclick="showLogin()">سجل دخول</span></p>
+      </div>
+
+      <!-- STEP 2: التواصل -->
+      <div class="reg-step-content" id="reg-step-2">
+        <h2 class="form-title">📧 بياناتك</h2>
+        <p class="form-sub">ازاي نتواصل معاك؟</p>
+        <div class="reg-contact-tabs">
+          <button class="reg-tab active" onclick="switchContactTab('email',this)">📧 إيميل</button>
+          <button class="reg-tab" onclick="switchContactTab('phone',this)">📱 موبايل</button>
+        </div>
+        <div id="contact-email-wrap" class="input-group">
+          <input type="email" id="reg-email" class="glass-input" placeholder="الإيميل"/>
+          <span class="input-icon">📧</span>
+        </div>
+        <div id="contact-phone-wrap" class="input-group hidden">
+          <input type="tel" id="reg-phone" class="glass-input" placeholder="رقم الموبايل"/>
+          <span class="input-icon">📱</span>
+        </div>
+        <div class="input-group">
+          <input type="password" id="reg-password" class="glass-input" placeholder="الباسورد" oninput="checkPasswordStrength(this.value)"/>
+          <span class="input-icon">🔐</span>
+        </div>
+        <div class="pw-strength-wrap" id="pw-strength-wrap" style="display:none">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <span class="strength-label" id="strength-label"></span>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn-back" onclick="regBack(2)">‹ رجوع</button>
+          <button class="btn-primary" onclick="regNext(2)" style="flex:1">التالي ›</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: الصورة والغلاف -->
+      <div class="reg-step-content" id="reg-step-3">
+        <h2 class="form-title">🎨 شخصيّتك</h2>
+        <p class="form-sub">اختار صورة وغلاف</p>
+
+        <!-- Cover picker -->
+        <div class="reg-cover-preview" id="reg-cover-preview" style="background:linear-gradient(135deg,rgba(110,231,247,0.4),rgba(167,139,250,0.4))">
+          <label class="reg-cover-upload-btn">
+            📷 غلاف
+            <input type="file" id="reg-cover-file" accept="image/*,image/gif" class="hidden" onchange="previewRegCover(this)"/>
+          </label>
+        </div>
+
+        <!-- Avatar -->
+        <div class="reg-avatar-section">
+          <div class="reg-avatar-preview" id="reg-avatar-preview">🌊</div>
+          <div>
+            <p class="picker-label" style="margin-bottom:8px">اختار صورتك</p>
+            <div class="avatar-grid" id="avatar-grid"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button class="btn-back" onclick="regBack(3)">‹ رجوع</button>
+          <button class="btn-primary" onclick="regNext(3)" style="flex:1">التالي ›</button>
+        </div>
+        <p style="text-align:center;color:var(--text-muted);font-size:.75rem;margin-top:8px">ممكن تتخطى وتغير بعدين</p>
+      </div>
+
+      <!-- STEP 4: اقتراحات أصدقاء -->
+      <div class="reg-step-content" id="reg-step-4">
+        <h2 class="form-title">👥 ناس ممكن تعرفهم</h2>
+        <p class="form-sub">تابع مين عايزه أو اعمل سكيب</p>
+        <div id="reg-suggestions" class="reg-suggestions-list"></div>
+        <button class="btn-primary" onclick="finishRegister()" style="margin-top:14px">ابدأ استخدام Wavex 🌊</button>
+        <p class="switch-text" onclick="finishRegister()" style="cursor:pointer;margin-top:8px">تخطي</p>
+      </div>
+
+    </div><!-- /register-form -->
+  </div>
+</div>
+
+<!-- ════════════════ APP ════════════════ -->
+<div id="app" class="app hidden">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar glass-panel">
+    <div class="sidebar-logo">
+      <img src="assets/images/logo-icon.svg" alt="Wavex" class="sidebar-logo-img" style="width:30px;height:30px;flex-shrink:0"/>
+      <!-- ✏️ RENAME HERE TOO -->
+      <span class="sidebar-logo-text">Wavex</span>
+    </div>
+    <nav class="sidebar-nav">
+      <!-- ── Desktop nav (full) ── -->
+      <a class="nav-item active" onclick="showPage('feed')" id="nav-feed">
+        <span class="nav-icon">🏠</span><span class="nav-label" data-i18n="home">الرئيسية</span>
+      </a>
+      <a class="nav-item" onclick="showPage('explore')" id="nav-explore">
+        <span class="nav-icon">🔍</span><span class="nav-label" data-i18n="explore">استكشف</span>
+      </a>
+      <a class="nav-item" onclick="showPage('chat')" id="nav-chat">
+        <span class="nav-icon">💬</span><span class="nav-label" data-i18n="chat">الرسايل</span>
+        <span class="badge hidden" id="chat-badge">0</span>
+      </a>
+      <a class="nav-item" onclick="showPage('notifications')" id="nav-notifications">
+        <span class="nav-icon">🔔</span><span class="nav-label" data-i18n="notifications">الإشعارات</span>
+        <span class="badge hidden" id="notif-badge">0</span>
+      </a>
+      <a class="nav-item" onclick="showPage('profile')" id="nav-profile">
+        <span class="nav-icon" id="nav-profile-av-wrap">
+          <span id="nav-profile-av" style="width:26px;height:26px;border-radius:50%;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.1);font-size:1rem">👤</span>
+        </span>
+        <span class="nav-label" data-i18n="myProfile">بروفايلي</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a class="nav-item" onclick="showFriendsPage()" id="nav-friends">
+        <span class="nav-icon">👥</span><span class="nav-label">الفريندز</span>
+      </a>
+      <a class="nav-item" onclick="showPage('market')" id="nav-market">
+        <span class="nav-icon">🛒</span><span class="nav-label" data-i18n="market">الماركت</span>
+      </a>
+      <a class="nav-item" onclick="showPage('videos')" id="nav-videos">
+        <span class="nav-icon">🎬</span><span class="nav-label" data-i18n="videos">الفيديوهات</span>
+      </a>
+      <a class="nav-item" onclick="showPage('groups')" id="nav-groups">
+        <span class="nav-icon">👥</span><span class="nav-label" data-i18n="groups">الجروبات</span>
+      </a>
+      <a class="nav-item" onclick="showPage('saved')" id="nav-saved">
+        <span class="nav-icon">🔖</span><span class="nav-label" data-i18n="saved">المحفوظات</span>
+      </a>
+      <div class="nav-divider"></div>
+      <a class="nav-item" onclick="showPage('settings')" id="nav-settings">
+        <span class="nav-icon">⚙️</span><span class="nav-label" data-i18n="settings">الإعدادات</span>
+      </a>
+
+      <!-- ── Mobile nav (5 items only) ── -->
+      <!-- Home · Add · Friends · Messages · More -->
+    </nav>
+    <div class="sidebar-user glass-card-sm" id="sidebar-user-wrap">
+      <div class="user-avatar-sm" id="sidebar-avatar" onclick="showAccountSwitcher()" style="cursor:pointer"></div>
+      <div class="user-info-sm" style="cursor:pointer" onclick="showAccountSwitcher()">
+        <div class="user-name-sm" id="sidebar-name"></div>
+        <div class="user-handle-sm" id="sidebar-handle"></div>
+      </div>
+      <button class="account-more-btn" onclick="showAccountSwitcher()" title="Switch account">⇅</button>
+    </div>
+    <!-- ── Desktop Create Button ── -->
+    <div class="sidebar-create-btn" onclick="focusPostCreator()">
+      <span class="sidebar-create-icon">＋</span>
+      <span class="sidebar-create-label">إنشاء</span>
+    </div>
+
+    <!-- Account Switcher Panel -->
+    <div class="account-switcher-panel hidden" id="account-switcher-panel">
+      <div class="account-switcher-header">
+        <span data-i18n="accounts">الحسابات</span>
+        <button class="account-switcher-close" onclick="hideAccountSwitcher()">✕</button>
+      </div>
+      <div id="accounts-list"></div>
+      <div class="account-switcher-actions">
+        <button class="account-action-btn" onclick="addNewAccount()">➕ <span data-i18n="addAccount">إضافة حساب</span></button>
+        <button class="account-action-btn danger" onclick="logout()">⬅ <span data-i18n="logout">تسجيل الخروج</span></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MOBILE BOTTOM NAV (separate from sidebar) ── -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <a class="mbn-item active" onclick="showPage('feed')" id="mbn-feed">
+      <span class="mbn-icon">🏠</span>
+      <span class="mbn-label">الرئيسية</span>
+    </a>
+    <a class="mbn-item" onclick="showPage('explore')" id="mbn-explore">
+      <span class="mbn-icon">🔍</span>
+      <span class="mbn-label">بحث</span>
+    </a>
+    <!-- + Create Button (center) -->
+    <div class="mbn-create" onclick="toggleCreateMenu()">
+      <div class="mbn-create-btn" id="mbn-create-btn">
+        <span id="mbn-create-icon">＋</span>
+      </div>
+    </div>
+    <a class="mbn-item" onclick="showPage('profile')" id="mbn-profile">
+      <span class="mbn-icon">👤</span>
+      <span class="mbn-label">بروفايلي</span>
+    </a>
+    <a class="mbn-item" onclick="toggleMoreMenu()" id="mbn-more">
+      <span class="mbn-icon">☰</span>
+      <span class="mbn-label">المزيد</span>
+    </a>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+
+    <!-- ╔ TOP HEADER (mobile) ╗ -->
+    <header class="mobile-top-header glass-card" id="mobile-top-header">
+      <div class="mth-logo">
+        <img src="assets/images/logo-icon.svg" alt="W" style="width:28px;height:28px"/>
+        <span class="mth-logo-text">Wavex</span>
+      </div>
+      <div class="mth-search-wrap" onclick="showPage('explore');document.getElementById('explore-search')?.focus()">
+        <span class="mth-search-icon">🔍</span>
+        <span class="mth-search-placeholder" data-i18n="search">بحث...</span>
+      </div>
+      <div class="mth-actions">
+        <button class="mth-btn" onclick="showPage('chat')" id="mth-chat-btn" title="الرسايل">
+          💬
+          <span class="mth-badge hidden" id="mth-chat-badge">0</span>
+        </button>
+        <button class="mth-btn" onclick="showPage('notifications')" id="mth-notif-btn" title="الإشعارات">
+          🔔
+          <span class="mth-badge hidden" id="mth-notif-badge">0</span>
+        </button>
+        <button class="mth-btn" onclick="toggleMoreMenu()">⋯</button>
+      </div>
+    </header>
+
+    <!-- ╔ FEED ╗ -->
+    <div id="page-feed" class="page active">
+      <div class="page-header glass-card">
+        <h2 data-i18n="home">الرئيسية</h2>
+        <div class="feed-tabs">
+          <button class="tab-btn active" onclick="switchFeedTab('all',this)" data-i18n="all">الكل</button>
+          <button class="tab-btn" onclick="switchFeedTab('following',this)" data-i18n="following">المتابَعون</button>
+        </div>
+      </div>
+
+      <!-- ══ STORIES BAR ══ -->
+      <div class="stories-bar" id="stories-bar">
+        <div class="story-add-btn" onclick="addStory()">
+          <div class="story-add-icon">➕</div>
+          <span class="story-label" data-i18n="addStory">قصتك</span>
+        </div>
+        <div class="stories-list" id="stories-list"></div>
+      </div>
+
+      <div class="post-creator glass-card">
+        <div class="creator-top">
+          <div class="creator-avatar" id="creator-avatar"></div>
+          <textarea id="post-content" class="post-textarea glass-input" rows="3" data-i18n-ph="whatsOnMind" oninput="updateCharCount()"></textarea>
+        </div>
+        <div id="image-preview-wrap" class="image-preview-wrap hidden">
+          <img id="image-preview" src="" alt=""/>
+          <button class="remove-img-btn" onclick="removeImage()">✕</button>
+        </div>
+        <input type="file" id="image-upload"  accept="image/*,image/gif,image/webp" class="hidden" onchange="previewImage(this)"/>
+        <input type="file" id="video-upload"  accept="video/*" class="hidden" onchange="previewPostVideo(this)"/>
+        <input type="file" id="audio-upload"  accept="audio/*" class="hidden" onchange="previewPostAudio(this)"/>
+        <div id="video-preview-wrap" class="media-preview-wrap hidden">
+          <video id="video-preview" controls style="max-width:100%;border-radius:10px;max-height:280px"></video>
+          <button class="remove-img-btn" onclick="removePostMedia('video')">✕</button>
+        </div>
+        <div id="audio-preview-wrap" class="media-preview-wrap hidden">
+          <div class="audio-player-wrap">
+            <span class="audio-icon">🎵</span>
+            <div class="audio-info">
+              <div id="audio-filename" class="audio-filename"></div>
+              <audio id="audio-preview" controls style="width:100%;height:32px"></audio>
+            </div>
+            <button class="remove-img-btn" onclick="removePostMedia('audio')">✕</button>
+          </div>
+        </div>
+        <div class="creator-bottom">
+          <div class="creator-media">
+            <button class="media-btn" onclick="toggleEmojiPicker()">😊 <span data-i18n="emoji">إيموجي</span></button>
+            <button class="media-btn" onclick="document.getElementById('image-upload').click()">🖼️ <span data-i18n="photo">صورة</span></button>
+            <button class="media-btn" onclick="document.getElementById('video-upload').click()">🎬 <span data-i18n="video">فيديو</span></button>
+            <button class="media-btn" onclick="document.getElementById('audio-upload').click()">🎵 <span>موسيقى</span></button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="char-count" id="char-count">0/500</span>
+            <button class="btn-post" onclick="createPost()"><span data-i18n="publish">نشر</span> ✨</button>
+          </div>
+        </div>
+        <div class="emoji-picker hidden" id="emoji-picker"></div>
+        <!-- ⚛️ React: Smart Suggestions bar -->
+        <div id="react-suggestions-bar"></div>
+      </div>
+
+      <!-- ⚛️ React: Enhanced Post Feed overlay features -->
+      <div id="react-feed-enhancer"></div>
+      <div id="posts-container"></div>
+    </div>
+
+    <!-- ╔ PROFILE ╗ -->
+    <div id="page-profile" class="page">
+      <div class="profile-cover glass-card">
+        <!-- Cover photo area -->
+        <div class="cover-bg" id="profile-cover-bg" onclick="viewMyCover()">
+          <label class="change-cover-btn cover-upload-label" onclick="event.stopPropagation()">
+            <span data-i18n="changeCover">تغيير الغلاف</span>
+            <input type="file" id="cover-file-input" accept="image/*,image/gif,image/webp" class="hidden" onchange="handleCoverUpload(this)"/>
+          </label>
+        </div>
+        <!-- Header info row -->
+        <div class="profile-header-info">
+          <!-- Avatar -->
+          <div class="profile-avatar-large" id="profile-avatar-display" onclick="viewMyAvatar()" style="cursor:zoom-in">
+            <label class="change-avatar-btn" style="cursor:pointer" onclick="event.stopPropagation()">
+              📷
+              <input type="file" id="profile-avatar-file" accept="image/*,image/gif,image/webp" class="hidden" onchange="handleAvatarUpload(this,'edit')"/>
+            </label>
+          </div>
+          <!-- Details -->
+          <div class="profile-details">
+            <h2 id="profile-name-display" class="profile-name-row"></h2>
+            <p id="profile-handle-display" class="profile-handle"></p>
+            <!-- Extra info pills -->
+            <div class="profile-info-pills" id="profile-info-pills"></div>
+            <!-- Bio -->
+            <p class="profile-bio" id="profile-bio-display"></p>
+            <div class="profile-actions-row">
+              <button class="btn-edit-profile" onclick="editProfile()">✏️ <span data-i18n="editProfile">تعديل الملف</span></button>
+              <button class="btn-share-profile" onclick="shareProfile()">🔗 <span data-i18n="share">مشاركة</span></button>
+            </div>
+          </div>
+          <!-- Stats -->
+          <div class="profile-stats">
+            <div class="stat-item"><span class="stat-num" id="profile-posts-count">0</span><span class="stat-label" data-i18n="posts">منشور</span></div>
+            <div class="stat-item"><span class="stat-num" id="profile-followers-count">0</span><span class="stat-label" data-i18n="followers">متابع</span></div>
+            <div class="stat-item"><span class="stat-num" id="profile-following-count">0</span><span class="stat-label" data-i18n="following">يتابع</span></div>
+          </div>
+        </div>
+        <!-- Tabs -->
+        <div class="profile-tabs">
+          <button class="profile-tab active" onclick="switchProfileTab('posts',this)" data-i18n="posts">منشورات</button>
+          <button class="profile-tab" onclick="switchProfileTab('liked',this)" data-i18n="liked">الإعجابات</button>
+          <button class="profile-tab" onclick="switchProfileTab('media',this)" data-i18n="media">الوسائط</button>
+          <button class="profile-tab" onclick="switchProfileTab('about',this)" data-i18n="aboutTab">معلومات</button>
+        </div>
+      </div>
+      <div id="profile-posts" class="profile-posts-grid"></div>
+    </div>
+
+    <!-- ╔ EXPLORE ╗ -->
+    <div id="page-explore" class="page">
+      <!-- Sticky search bar -->
+      <div class="explore-search-sticky glass-card">
+        <div class="explore-search-inner">
+          <span class="explore-search-icon">🔍</span>
+          <input type="text" id="explore-search" class="explore-search-input" data-i18n-ph="searchPh" oninput="searchContent(this.value)" autocomplete="off"/>
+          <button class="explore-search-clear hidden" id="explore-clear" onclick="clearExploreSearch()">✕</button>
+        </div>
+        <div class="explore-filter-tabs" id="explore-filter-tabs">
+          <button class="explore-filter active" onclick="setExploreFilter('all',this)" data-i18n="all">الكل</button>
+          <button class="explore-filter" onclick="setExploreFilter('people',this)" data-i18n="people">أشخاص</button>
+          <button class="explore-filter" onclick="setExploreFilter('posts',this)" data-i18n="posts">منشورات</button>
+          <button class="explore-filter" onclick="setExploreFilter('tags',this)" data-i18n="hashtags">هاشتاج</button>
+        </div>
+      </div>
+      <!-- Search results (shown when typing) -->
+      <div id="search-results" class="hidden"></div>
+      <!-- Default content (trending + people) -->
+      <div id="explore-main">
+        <div class="trending-section">
+          <h3 class="section-title">🔥 <span data-i18n="trendingPosts">الأكثر تفاعلاً</span></h3>
+          <div id="trending-posts"></div>
+        </div>
+        <div class="users-section">
+          <h3 class="section-title">👥 <span data-i18n="suggestedPeople">أشخاص قد تعرفهم</span></h3>
+          <div id="suggested-users" class="users-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔ CHAT ╗ -->
+    <div id="page-chat" class="page">
+      <div class="chat-layout">
+        <div class="chat-sidebar glass-panel">
+          <div class="chat-sidebar-header">
+            <div class="page-header-icon-title">
+              <span class="page-header-icon">💬</span>
+              <h3 data-i18n="chat">الشات</h3>
+              <span class="page-header-badge hidden" id="chat-header-badge">0</span>
+            </div>
+            <button class="btn-icon" onclick="showNewChatModal()">✏️</button>
+          </div>
+          <div class="chat-search-box">
+            <input type="text" class="glass-input" style="padding:10px 16px;font-size:0.85rem" data-i18n-ph="searchConvs" oninput="filterConvs(this.value)"/>
+          </div>
+          <div class="conversations-list" id="conversations-list">
+            <div class="empty-state-chat">
+              <div style="font-size:2.5rem;margin-bottom:8px">💬</div>
+              <p data-i18n="noConvs">لا توجد محادثات بعد</p>
+              <button class="btn-primary" style="margin-top:12px;padding:10px 20px;font-size:0.85rem" onclick="showNewChatModal()"><span data-i18n="startChat">ابدأ محادثة</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="chat-main-area" id="chat-main-area">
+          <div class="chat-empty-state">
+            <div style="font-size:3.5rem;margin-bottom:12px">💬</div>
+            <h3 data-i18n="selectConv">اختر محادثة للبدء</h3>
+            <p style="color:var(--text-muted);margin-top:6px" data-i18n="orStartNew">أو ابدأ محادثة جديدة</p>
+            <button class="btn-primary" style="margin-top:16px;max-width:200px" onclick="showNewChatModal()"><span data-i18n="newMsg">رسالة جديدة</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔ NOTIFICATIONS ╗ -->
+    <div id="page-notifications" class="page">
+      <div class="page-header glass-card">
+        <div class="page-header-icon-title">
+          <span class="page-header-icon">🔔</span>
+          <h2 data-i18n="notifications">الإشعارات</h2>
+          <span class="page-header-badge hidden" id="notif-header-badge">0</span>
+        </div>
+        <button class="btn-text" onclick="clearAllNotifs()" data-i18n="clearAll">مسح الكل</button>
+      </div>
+      <div id="notifications-list"></div>
+    </div>
+
+
+    <!-- ╔ MARKETPLACE ╗ -->
+    <div id="page-market" class="page">
+      <div class="page-header glass-card">
+        <h2>🛒 <span data-i18n="market">الماركت</span></h2>
+        <div class="feed-tabs">
+          <button class="tab-btn active" onclick="switchMarketTab('all',this)" data-i18n="all">الكل</button>
+          <button class="tab-btn" onclick="switchMarketTab('sell',this)" data-i18n="forSale">للبيع</button>
+          <button class="tab-btn" onclick="switchMarketTab('buy',this)" data-i18n="wanted">مطلوب</button>
+        </div>
+      </div>
+      <!-- Post item for sale -->
+      <div class="market-post-creator glass-card" id="market-creator">
+        <div class="creator-top" style="gap:10px;align-items:flex-start">
+          <div class="creator-avatar" id="market-creator-avatar"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <input type="text" id="market-title" class="glass-input" data-i18n-ph="marketTitle" style="padding:11px 14px"/>
+            <textarea id="market-desc" class="post-textarea glass-input" rows="2" data-i18n-ph="marketDesc" style="min-height:56px"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div style="position:relative;flex:1;min-width:120px">
+                <input type="number" id="market-price" class="glass-input" data-i18n-ph="price" style="padding:10px 14px"/>
+              </div>
+              <select id="market-currency" class="glass-input" style="padding:10px 14px;flex:1;min-width:100px;cursor:pointer;background:rgba(255,255,255,0.065)">
+                <option value="EGP">جنيه مصري</option>
+                <option value="SAR">ريال سعودي</option>
+                <option value="AED">درهم إماراتي</option>
+                <option value="USD">دولار</option>
+              </select>
+              <select id="market-type" class="glass-input" style="padding:10px 14px;flex:1;min-width:100px;cursor:pointer;background:rgba(255,255,255,0.065)">
+                <option value="sell" data-i18n="forSale">للبيع</option>
+                <option value="buy" data-i18n="wanted">مطلوب</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <button class="media-btn" onclick="document.getElementById('market-img-input').click()">🖼️ <span data-i18n="addPhoto">إضافة صورة</span></button>
+              <input type="file" id="market-img-input" accept="image/*" class="hidden" onchange="previewMarketImg(this)"/>
+              <button class="btn-post" onclick="postMarketItem()">📦 <span data-i18n="publishItem">نشر العرض</span></button>
+            </div>
+            <div id="market-img-preview-wrap" class="image-preview-wrap hidden">
+              <img id="market-img-preview" src="" alt=""/>
+              <button class="remove-img-btn" onclick="removeMarketImg()">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="market-items-container"></div>
+    </div>
+
+    <!-- ╔ VIDEOS ╗ -->
+    <div id="page-videos" class="page">
+      <div class="page-header glass-card">
+        <h2>🎬 <span data-i18n="videos">الفيديوهات</span></h2>
+        <div class="feed-tabs">
+          <button class="tab-btn active" onclick="switchVideoTab('all',this)" data-i18n="all">الكل</button>
+          <button class="tab-btn" onclick="switchVideoTab('mine',this)" data-i18n="myVideos">فيديوهاتي</button>
+        </div>
+      </div>
+      <!-- Video post creator -->
+      <div class="glass-card market-post-creator" id="video-creator">
+        <div class="creator-top" style="gap:10px;align-items:flex-start">
+          <div class="creator-avatar" id="video-creator-avatar"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <input type="text" id="video-title" class="glass-input" data-i18n-ph="videoTitle" style="padding:11px 14px"/>
+            <textarea id="video-desc" class="post-textarea glass-input" rows="2" data-i18n-ph="videoDesc" style="min-height:52px"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="media-btn" onclick="document.getElementById('video-file-input').click()">🎬 <span data-i18n="uploadVideo">رفع فيديو</span></button>
+              <button class="media-btn" onclick="showYoutubeModal()">▶️ <span data-i18n="youtubeLink">رابط يوتيوب</span></button>
+              <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="handleVideoFile(this)"/>
+              <button class="btn-post" onclick="postVideo()">🎬 <span data-i18n="publishVideo">نشر</span></button>
+            </div>
+            <div id="video-attach-preview" class="hidden" style="background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;font-size:.85rem;color:var(--text-sub)"></div>
+          </div>
+        </div>
+      </div>
+      <div id="videos-container"></div>
+    </div>
+
+    <!-- ╔ GROUPS ╗ -->
+    <div id="page-groups" class="page">
+      <div class="page-header glass-card">
+        <h2>👥 <span data-i18n="groups">المجموعات</span></h2>
+        <button class="btn-post" onclick="showCreateGroupModal()" style="padding:8px 16px;font-size:.85rem">+ <span data-i18n="createGroup">إنشاء مجموعة</span></button>
+      </div>
+      <div id="groups-container">
+        <div class="empty-state-full" style="padding:48px 20px">
+          <div style="font-size:3rem;margin-bottom:10px">👥</div>
+          <h3 data-i18n="noGroups">لا توجد مجموعات بعد</h3>
+          <p style="color:var(--text-muted);margin-top:6px;font-size:.88rem" data-i18n="createGroupHint">أنشئ مجموعة وادعُ أصدقاءك</p>
+          <button class="btn-primary" style="margin-top:16px;max-width:200px" onclick="showCreateGroupModal()"><span data-i18n="createGroup">إنشاء مجموعة</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔ SAVED ╗ -->
+    <div id="page-saved" class="page">
+      <div class="page-header glass-card">
+        <h2>🔖 <span data-i18n="saved">المحفوظات</span></h2>
+      </div>
+      <div id="saved-container"></div>
+    </div>
+
+    <!-- ╔ SETTINGS ╗ -->
+    <div id="page-settings" class="page">
+      <div class="page-header glass-card">
+        <h2>⚙️ <span data-i18n="settings">الإعدادات</span></h2>
+      </div>
+      <div class="settings-layout">
+
+        <!-- ── Account ── -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">👤 <span data-i18n="accountSettings">إعدادات الحساب</span></div>
+
+          <!-- Current account info pill -->
+          <div class="settings-account-pill" id="settings-account-pill">
+            <div class="sap-avatar" id="sap-avatar"></div>
+            <div class="sap-info">
+              <div class="sap-name" id="sap-name"></div>
+              <div class="sap-handle" id="sap-handle"></div>
+            </div>
+          </div>
+
+          <div class="settings-item" onclick="editProfile()">
+            <div class="settings-item-left">
+              <span class="settings-icon">✏️</span>
+              <div><div class="settings-label" data-i18n="editProfile">تعديل الملف الشخصي</div><div class="settings-sub" data-i18n="editProfileSub">الاسم والصورة والنبذة</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="showChangeUsernameModal()">
+            <div class="settings-item-left">
+              <span class="settings-icon">🏷️</span>
+              <div><div class="settings-label" data-i18n="changeUsername">تغيير اسم المستخدم</div><div class="settings-sub" id="current-username-sub">@...</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="showChangeEmailModal()">
+            <div class="settings-item-left">
+              <span class="settings-icon">📧</span>
+              <div><div class="settings-label" data-i18n="changeEmail">تغيير الإيميل</div><div class="settings-sub" id="current-email-sub">...</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="showHomeCustomizer()">
+            <div class="settings-item-left">
+              <span class="settings-icon">🏠</span>
+              <div><div class="settings-label" id="home-cust-lbl">تخصيص الهوم</div><div class="settings-sub">اختار إيه اللي يظهر</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="showNotifSettings()">
+            <div class="settings-item-left">
+              <span class="settings-icon">🔔</span>
+              <div><div class="settings-label" id="notif-sett-lbl">إعدادات الإشعارات</div><div class="settings-sub">اختار مين يبعتلك إشعار</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="showVideoSettings()">
+            <div class="settings-item-left">
+              <span class="settings-icon">🎬</span>
+              <div><div class="settings-label" id="video-sett-lbl">إعدادات الفيديو</div><div class="settings-sub">جودة، تشغيل تلقائي</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="showChangePasswordModal()">
+            <div class="settings-item-left">
+              <span class="settings-icon">🔐</span>
+              <div><div class="settings-label" data-i18n="changePassword">تغيير كلمة المرور</div><div class="settings-sub" data-i18n="changePasswordSub">حافظ على أمان حسابك</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="showPrivacySettings()">
+            <div class="settings-item-left">
+              <span class="settings-icon">🔒</span>
+              <div><div class="settings-label" data-i18n="privacySettings">الخصوصية والأمان</div><div class="settings-sub" data-i18n="privacySettingsSub">من يرى منشوراتك وملفك</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+        </div>
+
+        <!-- ── Appearance ── -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">🎨 <span data-i18n="appearance">المظهر</span></div>
+
+          <!-- Theme toggle -->
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <span class="settings-icon" id="theme-icon">🌙</span>
+              <div><div class="settings-label" data-i18n="theme">الثيم</div><div class="settings-sub" id="theme-sub-label" data-i18n="darkMode">الوضع الداكن</div></div>
+            </div>
+            <div class="theme-switcher" id="theme-switcher">
+              <button class="theme-btn active" id="theme-btn-dark" onclick="setTheme('dark')">🌙 <span data-i18n="dark">داكن</span></button>
+              <button class="theme-btn" id="theme-btn-light" onclick="setTheme('light')">☀️ <span data-i18n="light">فاتح</span></button>
+            </div>
+          </div>
+
+          <!-- Accent color -->
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <span class="settings-icon">🎨</span>
+              <div><div class="settings-label" data-i18n="accentColor">لون التمييز</div><div class="settings-sub" data-i18n="accentColorSub">لون الأزرار والروابط</div></div>
+            </div>
+            <div class="accent-picker" id="accent-picker">
+              <div class="accent-dot active" style="background:linear-gradient(135deg,#6ee7f7,#a78bfa)" onclick="setAccent('cyan')" data-accent="cyan"></div>
+              <div class="accent-dot" style="background:linear-gradient(135deg,#f472b6,#a78bfa)" onclick="setAccent('pink')" data-accent="pink"></div>
+              <div class="accent-dot" style="background:linear-gradient(135deg,#34d399,#6ee7f7)" onclick="setAccent('green')" data-accent="green"></div>
+              <div class="accent-dot" style="background:linear-gradient(135deg,#fb923c,#f472b6)" onclick="setAccent('orange')" data-accent="orange"></div>
+              <div class="accent-dot" style="background:linear-gradient(135deg,#818cf8,#6ee7f7)" onclick="setAccent('indigo')" data-accent="indigo"></div>
+            </div>
+          </div>
+
+          <!-- Font size -->
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <span class="settings-icon">🔤</span>
+              <div><div class="settings-label" data-i18n="fontSize">حجم الخط</div></div>
+            </div>
+            <div class="font-size-btns">
+              <button class="font-sz-btn" onclick="setFontSizeCustom('xs')"     id="fs-xs">XS</button>
+              <button class="font-sz-btn" onclick="setFontSizeCustom('small')"  id="fs-small">S</button>
+              <button class="font-sz-btn active" onclick="setFontSizeCustom('medium')" id="fs-medium">M</button>
+              <button class="font-sz-btn" onclick="setFontSizeCustom('large')"  id="fs-large">L</button>
+              <button class="font-sz-btn" onclick="setFontSizeCustom('xl')"     id="fs-xl">XL</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Language ── -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">🌍 <span data-i18n="languageSettings">اللغة</span></div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <span class="settings-icon">🌐</span>
+              <div><div class="settings-label" data-i18n="language">لغة التطبيق</div><div class="settings-sub" id="current-lang-label">العربية</div></div>
+            </div>
+            <div class="lang-picker" id="lang-picker">
+              <button class="lang-btn" id="lang-btn-ar" onclick="setLang('ar')">🇸🇦 العربية</button>
+              <button class="lang-btn" id="lang-btn-en" onclick="setLang('en')">🇺🇸 English</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Notifications ── -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">🔔 <span data-i18n="notificationSettings">إعدادات الإشعارات</span></div>
+
+          <!-- DND — master switch -->
+          <div class="settings-item dnd-item" id="dnd-item">
+            <div class="settings-item-left">
+              <span class="settings-icon">🔕</span>
+              <div>
+                <div class="settings-label" data-i18n="dndMode">وضع عدم الإزعاج</div>
+                <div class="settings-sub" id="dnd-sub" data-i18n="dndSub">إيقاف كل الإشعارات مؤقتاً</div>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notif-dnd" onchange="toggleDND(this.checked)"/>
+              <span class="toggle-slider toggle-slider-red"></span>
+            </label>
+          </div>
+
+          <!-- Individual toggles — disabled when DND on -->
+          <div id="notif-detail-group">
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <span class="settings-icon">❤️</span>
+                <div><div class="settings-label" data-i18n="likesNotif">إشعارات الإعجابات</div></div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="notif-likes" checked onchange="saveNotifPref('likes',this.checked)"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <span class="settings-icon">💬</span>
+                <div><div class="settings-label" data-i18n="commentsNotif">إشعارات التعليقات</div></div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="notif-comments" checked onchange="saveNotifPref('comments',this.checked)"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <span class="settings-icon">👥</span>
+                <div><div class="settings-label" data-i18n="followersNotif">إشعارات المتابعين</div></div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="notif-followers" checked onchange="saveNotifPref('followers',this.checked)"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-left">
+                <span class="settings-icon">✉️</span>
+                <div><div class="settings-label" data-i18n="messagesNotif">إشعارات الرسائل</div></div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="notif-messages" checked onchange="saveNotifPref('messages',this.checked)"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Accounts ── -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">🔄 <span data-i18n="accountsManagement">إدارة الحسابات</span></div>
+          <div class="settings-item" onclick="showAccountSwitcher()">
+            <div class="settings-item-left">
+              <span class="settings-icon">⇅</span>
+              <div><div class="settings-label" data-i18n="switchAccount">تبديل الحساب</div><div class="settings-sub" id="settings-accounts-count">حساب واحد نشط</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item" onclick="addNewAccount()">
+            <div class="settings-item-left">
+              <span class="settings-icon">➕</span>
+              <div><div class="settings-label" data-i18n="addAccount">إضافة حساب جديد</div><div class="settings-sub" data-i18n="addAccountSub">سجل دخول بحساب آخر</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+        </div>
+
+        <!-- ── Storage ── -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">💾 <span data-i18n="storageData">التخزين والبيانات</span></div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <span class="settings-icon">📊</span>
+              <div><div class="settings-label" data-i18n="storageUsed">مساحة مستخدمة</div><div class="settings-sub" id="storage-used-label">...</div></div>
+            </div>
+            <button class="settings-calc-btn" onclick="calcStorage()" data-i18n="calculate">احسب</button>
+          </div>
+          <div class="settings-item" onclick="clearCacheData()">
+            <div class="settings-item-left">
+              <span class="settings-icon">🗑️</span>
+              <div><div class="settings-label" data-i18n="clearCache">مسح الكاش والبيانات المؤقتة</div><div class="settings-sub" data-i18n="clearCacheSub">لا يؤثر على حسابك أو منشوراتك</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+        </div>
+
+        <!-- ── Admin ── -->
+        <div class="settings-section glass-card" id="admin-access-section" style="display:none">
+          <div class="settings-section-title">🛡️ <span>Admin Panel</span></div>
+          <div class="settings-item" onclick="openAdminPanel()">
+            <div class="settings-item-left">
+              <span class="settings-icon">⚙️</span>
+              <div><div class="settings-label">فتح لوحة التحكم</div><div class="settings-sub">Admin & Moderator Panel</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+        </div>
+
+        <!-- ── About ── -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">ℹ️ <span data-i18n="about">عن التطبيق</span></div>
+          <div class="settings-item">
+            <div class="settings-item-left">
+              <span class="settings-icon">📱</span>
+              <div onclick="handleVersionTap()" style="cursor:default;user-select:none"><div class="settings-label" data-i18n="appVersion">إصدار التطبيق</div><div class="settings-sub" id="version-label">Wavex v1.0 Beta 🚀</div></div>
+            </div>
+          </div>
+          <div class="settings-item" onclick="showTermsModal()">
+            <div class="settings-item-left">
+              <span class="settings-icon">📄</span>
+              <div><div class="settings-label" data-i18n="termsAndPrivacy">الشروط والخصوصية</div></div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+          <div class="settings-item danger-item" onclick="confirmDeleteAccount()">
+            <div class="settings-item-left">
+              <span class="settings-icon">❌</span>
+              <div><div class="settings-label danger-label" data-i18n="deleteAccount">حذف الحساب</div><div class="settings-sub" data-i18n="deleteAccountSub">هذا الإجراء لا يمكن التراجع عنه</div></div>
+            </div>
+            <span class="settings-arrow" style="color:var(--danger)">›</span>
+          </div>
+        </div>
+
+        <!-- ── Logout ── -->
+        <div class="settings-section glass-card" style="padding:6px">
+          <button class="settings-logout-big" onclick="logout()">
+            <span>⬅</span> <span data-i18n="logout">تسجيل الخروج</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+  </main>
+
+  <!-- ── RIGHT PANEL ── -->
+  <aside class="right-panel">
+    <div class="widget glass-card">
+      <h3 class="widget-title">🌟 <span data-i18n="suggestions">مقترح عليك</span></h3>
+      <div id="friend-suggestions"></div>
+    </div>
+    <div class="widget glass-card">
+      <h3 class="widget-title">🔥 <span data-i18n="trendingNow">ترند الآن</span></h3>
+      <div id="trend-list"></div>
+    </div>
+    <div class="widget glass-card verification-widget">
+      <h3 class="widget-title">🛡️ <span data-i18n="verificationTitle">التوثيق</span></h3>
+      <p class="widget-body-text" data-i18n="verificationDesc">احصل على علامة التوثيق <span class="badge-verified-inline">✓</span> لحسابك</p>
+      <button class="btn-verify" onclick="applyVerification()"><span data-i18n="applyVerif">تقديم طلب توثيق</span></button>
+    </div>
+    <div class="widget glass-card">
+      <h3 class="widget-title">📅 <span data-i18n="memories">ذكريات اليوم</span></h3>
+      <div id="memories-widget"><p class="widget-empty" data-i18n="noMemories">لا توجد ذكريات بعد</p></div>
+    </div>
+    <!-- ⚛️ React Widget: Live Stats -->
+    <div class="widget glass-card" id="react-stats-widget"></div>
+    <!-- ⚛️ React Widget: Mood Picker -->
+    <div class="widget glass-card" id="react-mood-widget"></div>
+  </aside>
+</div>
+
+<!-- ════════════════ MODALS ════════════════ -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="handleModalOverlayClick(event)">
+  <div class="modal glass-card" onclick="event.stopPropagation()" id="modal-box">
+    <button class="modal-close-btn" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast glass-card hidden"></div>
+<!-- ⚛️ React: Floating AI compose button -->
+<div id="react-fab"></div>
+
+<!-- ── Create Menu (shared desktop+mobile) ── -->
+<div id="create-fab" class="create-fab-overlay hidden" onclick="if(event.target===this)closeFeedCreator()">
+  <div class="create-fab-menu-panel">
+    <div class="cfm-title">إنشاء محتوى</div>
+    <div class="cfm-grid">
+      <div class="cfm-item" onclick="showPage('feed');setTimeout(()=>document.getElementById('image-upload')?.click(),300);closeFeedCreator()">
+        <div class="cfm-icon-wrap" style="background:rgba(110,231,247,0.15)">🖼️</div>
+        <span>صورة</span>
+      </div>
+      <div class="cfm-item" onclick="showPage('feed');setTimeout(()=>document.getElementById('video-upload')?.click(),300);closeFeedCreator()">
+        <div class="cfm-icon-wrap" style="background:rgba(244,114,182,0.15)">🎬</div>
+        <span>فيديو</span>
+      </div>
+      <div class="cfm-item" onclick="showPage('feed');setTimeout(()=>document.getElementById('audio-upload')?.click(),300);closeFeedCreator()">
+        <div class="cfm-icon-wrap" style="background:rgba(167,139,250,0.15)">🎵</div>
+        <span>موسيقى</span>
+      </div>
+      <div class="cfm-item" onclick="addStory();closeFeedCreator()">
+        <div class="cfm-icon-wrap" style="background:rgba(251,146,60,0.15)">📖</div>
+        <span>ستوري</span>
+      </div>
+      <div class="cfm-item" onclick="focusPostCreator();closeFeedCreator()">
+        <div class="cfm-icon-wrap" style="background:rgba(52,211,153,0.15)">✍️</div>
+        <span>منشور</span>
+      </div>
+      <div class="cfm-item" onclick="showPage('market');closeFeedCreator()">
+        <div class="cfm-icon-wrap" style="background:rgba(251,191,36,0.15)">🛒</div>
+        <span>ماركت</span>
+      </div>
+    </div>
+    <button class="cfm-close" onclick="closeFeedCreator()">إلغاء</button>
+  </div>
+</div>
+<!-- ⚛️ React: Notification center -->  
+<div id="react-notif-center"></div>
+<div id="lightbox" class="lightbox hidden" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""/></div>
+
+<!-- ── MORE MENU (mobile) ── -->
+<div class="more-overlay" id="more-overlay" onclick="closeMoreMenu()"></div>
+<div class="more-menu" id="more-menu">
+  <div class="more-menu-handle"></div>
+
+  <!-- User info strip -->
+  <div class="more-menu-user" id="more-menu-user">
+    <div class="more-menu-user-av" id="more-menu-av"></div>
+    <div class="more-menu-user-info">
+      <div class="more-menu-user-name" id="more-menu-name"></div>
+      <div class="more-menu-user-handle" id="more-menu-handle"></div>
+    </div>
+    <button class="more-menu-profile-btn" onclick="closeMoreMenu();showPage('profile')">ملفي ›</button>
+  </div>
+
+  <!-- Grid items -->
+  <div class="more-menu-grid">
+    <div class="more-menu-item" onclick="closeMoreMenu();showFriendsPage()">
+      <span class="more-menu-icon">👥</span>
+      <span class="more-menu-label">الفريندز</span>
+    </div>
+    <div class="more-menu-item" onclick="showPageFromMore('market')" id="more-market">
+      <span class="more-menu-icon">🛒</span>
+      <span class="more-menu-label" data-i18n="market">الماركت</span>
+    </div>
+    <div class="more-menu-item" onclick="showPageFromMore('videos')" id="more-videos">
+      <span class="more-menu-icon">🎬</span>
+      <span class="more-menu-label" data-i18n="videos">الفيديوهات</span>
+    </div>
+    <div class="more-menu-item" onclick="showPageFromMore('groups')" id="more-groups">
+      <span class="more-menu-icon">👥</span>
+      <span class="more-menu-label" data-i18n="groups">المجموعات</span>
+    </div>
+    <div class="more-menu-item" onclick="showPageFromMore('saved')" id="more-saved">
+      <span class="more-menu-icon">🔖</span>
+      <span class="more-menu-label" data-i18n="saved">المحفوظات</span>
+    </div>
+    <div class="more-menu-item" onclick="showPageFromMore('settings')" id="more-settings">
+      <span class="more-menu-icon">⚙️</span>
+      <span class="more-menu-label" data-i18n="settings">الإعدادات</span>
+    </div>
+    <div class="more-menu-item" onclick="closeMoreMenu();showPage('explore')">
+      <span class="more-menu-icon">🔍</span>
+      <span class="more-menu-label" data-i18n="explore">استكشف</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="more-menu-footer">
+    <span>Made By Ahmed Rami | 2026</span>
+    <button class="more-menu-logout" onclick="logout()">⬅ خروج</button>
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+  <script>
+  // ── PWA: Register Service Worker ──
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => { window._swReg = reg; })
+        .catch(() => {});
+    });
+  }
+
+  // ── Push Notifications: request permission on first interaction ──
+  let _notifAsked = false;
+  function askNotifPermission() {
+    if (_notifAsked || !('Notification' in window)) return;
+    _notifAsked = true;
+    if (Notification.permission === 'default') {
+      setTimeout(() => {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') showToast(currentLang==='ar'?'الإشعارات مفعّلة 🔔':'Notifications enabled 🔔');
+        });
+      }, 3000);
+    }
+  }
+
+  // ── Fire local notification ──
+  function fireNotif(title, body, icon) {
+    if (typeof isDND === 'function' && isDND()) return;
+    const prefs = (typeof DB !== 'undefined' ? DB.get('wvx_notif_prefs') : null) || {};
+    // icon maps: like→likes, comment→comments, follow→followers, message→messages
+    const prefKey = icon === '❤️' ? 'likes' : icon === '💬' ? 'comments' : icon === '👥' ? 'followers' : 'messages';
+    if (prefs[prefKey] === false) return;
+    if (Notification.permission === 'granted') {
+      new Notification('Wavex — ' + title, { body, icon: '/assets/icons/favicon.svg', dir: 'rtl' });
+    }
+    // Always show in-app toast
+    if (typeof showToast === 'function') showToast(icon + ' ' + body);
+  }
+  window.fireNotif = fireNotif;
+  </script>
+  <script src="js/visual-engine.js" defer></script>
+  <!-- ⚛️ React Components — يشتغل بدون build -->
+  <script src="js/feed-algorithm.js" defer></script>
+  <script type="text/babel" src="js/react-components.js" defer></script>
+</body>
+</html>

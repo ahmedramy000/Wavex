@@ -1,0 +1,17 @@
+{
+  "name": "Wavex",
+  "short_name": "Wavex",
+  "description": "Connect Differently · تواصل بشكل مختلف",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d1f",
+  "theme_color": "#6ee7f7",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "assets/icons/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "categories": ["social", "communication"]
+}
